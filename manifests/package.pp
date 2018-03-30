@@ -2,7 +2,7 @@
 # Need to add Version parameter
 
 # Note: This can be very slow - it downloads packages from the Repo
-define anaconda::package( $env=undef, $base_path='/opt/anaconda') {
+define anaconda::package( $env=undef, $options=undef $base_path='/opt/anaconda') {
     include anaconda
     
     $conda = "${base_path}/bin/conda"
@@ -20,9 +20,15 @@ define anaconda::package( $env=undef, $base_path='/opt/anaconda') {
         $env_require = [Class["anaconda::install"]]
     }
     
+    if $options {
+      $install_options = "${options}"
+    }
+    else{
+      $install_options = ''
+    }
     
     exec { "anaconda_${env_name}_${name}":
-        command => "${conda} install --yes --quiet ${env_option} ${name}",
+        command => "${conda} install --yes --quiet ${env_option} ${name} {$install_options}",
         require => $env_require,
         
         # Ugly way to check if package is already installed
